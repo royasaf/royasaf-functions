@@ -4,28 +4,69 @@ author: "Roya Safaeinili"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+library(tidyverse)
 ```
 
-## GitHub Documents
+Today we will be learning to write our own functions in R.
 
-This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+```{r}
+exp_growth <- function(xt,r){
+  r * xt
+}
 
-## Including Code
+simulate <- function(max_time, x0, r){
+  
+  x <- numeric(max_time)
+  x[1] <- x0
+  
+  for (t in 1:(max_time - 1)){
+    x[t+1] <- exp_growth(x[t],r)
+  }
+  
+  pop_data <- data_frame(time = 1:max_time, population_size = x)
+  pop_data
+  
+  
+}
 
-You can include R code in the document as follows:
-
-```{r cars}
-summary(cars)
+simulate(41,10,1.5)
 ```
 
-## Including Plots
+```{r}
+simulate(41,10,1.5) %>%
+  ggplot( aes(x = time, y = population_size)) +
+      geom_point() +
+      xlab('Time') +
+      ylab('Population Size') + 
+      ggtitle('Exponential Population Growth')
+```
+$$x_{t+1} = r x_t \left(1-\frac{x_t}{K}\right)$$
 
-You can also embed plots, for example:
+```{r}
+growth <- function(xt, r, K){
+  x_t <- r * xt*(1-(xt/K))
+}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+simulate2 <- function(max_time, x0, r, K){
+  
+  x <- numeric(max_time)
+  x[1] <- x0
+  
+  for (t in 1:(max_time - 1)){
+    x[t+1] <- growth(x[t],r,K)
+  }
+  
+  pop_data <- data_frame(time = 1:max_time, population_size = x)
+  pop_data
+}
+
+simulate2(41,10,1.5,100) %>%
+  ggplot(aes(time,population_size)) +
+  geom_point() +
+  xlab('Time') +
+  ylab('Population Size') + 
+  ggtitle('Logarithmic Population Growth')
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
